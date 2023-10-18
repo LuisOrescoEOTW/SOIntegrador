@@ -16,85 +16,85 @@ interface Proceso {
 function App() {
   const [count, setCount] = useState(-1);
   // const [nuevoInicial, setNuevoInicial] = useState<Proceso[]>([]); //El cargado sin modificar
-  const [nuevo, setNuevo] = useState<Proceso[]>([]); //upNuevo
-  const [listo, setListo] = useState<Proceso[]>([]); //upListo
-  const [bloqueado, setBloqueado] = useState<Proceso[]>([]); //actBloqueado
-  const [procesar, setProcesar] = useState<Proceso[]>([]); //actProcesar
-  const [finalizado, setFinalizado] = useState<Proceso[]>([]); //upFinalizado
-  
-  const Procesar = () => {
-    const upCount = count + 1;
-    const upListo = listo;
+  const [nuevo, setNuevo] = useState<Proceso[]>([]); //Se va modificando
+  const [listo, setListo] = useState<Proceso[]>([]);
+  const [bloqueado, setBloqueado] = useState<Proceso[]>([]);
+  const [procesar, setProcesar] = useState<Proceso[]>([]);
+  const [finalizado, setFinalizado] = useState<Proceso[]>([]);
 
-    //NUEVO y LISTO
-    const upNuevo = nuevo.filter((value) => {
-      if (value.Arribo === upCount) {
-        upListo.push(value);
+  const GestionListo =  () => {
+    const nuevoActualizado = nuevo.filter((value) => {
+      if (value.Arribo === count) {
+        // const upListo = { ...value}
+        setListo((listo) => [...listo, value]);
         return false; // Elimina el elemento de nuevo
       }
       return true; // Mantiene el elemento en nuevo
     });
-    setNuevo(upNuevo);
+    setNuevo(nuevoActualizado);
+  };
 
-    //BLOQUEADO
+  const GestionBloqueado = () => {
     //Disminuye en 1 el IO de todos los bloqueados
-    const actBloqueado = bloqueado.map((value) => {
-      return { ...value, IO: value.IO - 1 };
-    });
+    const upBloqueado = bloqueado.map((value) => { return { ...value, IO: value.IO - 1 }; });
     //Quita de la lista de bloqueados ya agrega en Listos
-    const upBloqueado = actBloqueado.filter((value) => {
+    const nuevoBloqueado = upBloqueado.filter((value) => {
       if (value.IO === 0) {
         //Cargo en Listo el proceso seteado con IO 25
         const valueModif = { ...value, IO: 25 };
-        upListo.push(valueModif);
+        setListo((listo) => [...listo, valueModif]);
         return false; // Elimina el elemento de nuevo
       }
       return true; // Mantiene el elemento en nuevo
     });
+    setBloqueado(nuevoBloqueado);
+  };
 
-    //PROCESAR
-    //Disminuye el tiempo procesado en previsto y servicio
+  const GestionProcesar = () => {
+    //Disminuye el tiempo procesado en previsto como servicio
     if (procesar.length > 0) {
       // Función para disminuir en 1
-      const actProcesar = procesar.map((value) => {
-        return {
-          ...value,
-          Previsto: value.Previsto - 1,
-          Servicio: value.Servicio - 1,
-        };
-      });
-
+      const upProcesar = procesar.map((value) => { return { ...value, Previsto: value.Previsto - 1, Servicio: value.Servicio - 1 }; });
+      
       //Quita de la lista los procesados finalizados
-      const upProcesar = actProcesar.filter((value) => {
+      const nuevoProcesar = upProcesar.filter((value) => {
         if (value.Servicio === 0) {
           setFinalizado((finalizado) => [...finalizado, value]);
           return false; // Elimina el elemento de nuevo
         } else {
-          if (value.Previsto === 0) {
-            const valueModif = { ...value, Previsto: value.PrevistoH };
-            upBloqueado.push(valueModif);
+            if (value.Previsto === 0) {
+            const valueModif = { ...value, Previsto: value.PrevistoH, IO: 25 };
+            setBloqueado((bloqueado) => [...bloqueado, valueModif]);
             return false; // Elimina el elemento de nuevo
           } else {
-            return true; // Mantiene el elemento en nuevo
+              return true; // Mantiene el elemento en nuevo
           }
         }
       });
-      if (upProcesar.length == 0 && upListo.length > 0) {
-        upProcesar.push(upListo[0]); //Agrego el 1 elemento de listo a procesar
-        upListo.shift() //Elimino el 1 elemento de listo
-      }
-      setProcesar(upProcesar);
+      setProcesar(nuevoProcesar);
     } else {
       // Verifica si procesar esta vacio y listo tiene elementos
-      if (upListo.length > 0) {
-        setProcesar([upListo[0]]); //Agrego el 1 elemento de listo a procesar
-        upListo.shift() //Elimino el 1 elemento de listo
+      if (listo.length > 0) {
+        setProcesar([listo[0]]); //Agrego el 1 elemento de listo a procesar
+        setListo(listo.slice(1)); //Elimino el 1 elemento de listo
       }
     }
-    
-    setListo(upListo);
-    setBloqueado(upBloqueado);
-    setCount(upCount);
+
+  };
+  
+  useEffect(() => {
+    console.log(procesar);
+  }, [procesar])
+  
+  const Procesar = () => {
+    setCount((count) => count + 1);
+    GestionListo();
+    GestionBloqueado();
+    GestionProcesar();
+
+    // bloqueado?.map((value) => {
+    //   console.log(value);
+    // })
   };
 
   const cargarArreglo = () => {
@@ -140,6 +140,10 @@ function App() {
   };
 
   useEffect(() => {
+    nuevo.map((value) => console.log(value));
+  }, [nuevo]);
+
+  useEffect(() => {
     cargarArreglo();
   }, []);
 
@@ -156,8 +160,7 @@ function App() {
           <ul>
             {nuevo.map((item, index) => (
               <li key={index}>
-                Proceso {item.Proceso} Previsto {item.Previsto} Restante{" "}
-                {item.Restante} Arribo {item.Arribo} Servicio {item.Servicio} IO
+                Proceso {item.Proceso} Previsto {item.Previsto} Restante {item.Restante} Arribo {item.Arribo} Servicio {item.Servicio} IO
                 {item.IO}
               </li>
             ))}
@@ -171,8 +174,7 @@ function App() {
           <ul>
             {listo.map((item, index) => (
               <li key={index}>
-                Proceso {item.Proceso} Previsto {item.Previsto} Restante{" "}
-                {item.Restante} Arribo {item.Arribo} Servicio {item.Servicio} IO
+                Proceso {item.Proceso} Previsto {item.Previsto} Restante {item.Restante} Arribo {item.Arribo} Servicio {item.Servicio} IO
                 {item.IO}
               </li>
             ))}
@@ -186,8 +188,7 @@ function App() {
           <ul>
             {bloqueado.map((item, index) => (
               <li key={index}>
-                Proceso {item.Proceso} Previsto {item.Previsto} Restante{" "}
-                {item.Restante} Arribo {item.Arribo} Servicio {item.Servicio} IO
+                Proceso {item.Proceso} Previsto {item.Previsto} Restante {item.Restante} Arribo {item.Arribo} Servicio {item.Servicio} IO
                 {item.IO}
               </li>
             ))}
@@ -201,8 +202,7 @@ function App() {
           <ul>
             {procesar.map((item, index) => (
               <li key={index}>
-                Proceso {item.Proceso} Previsto {item.Previsto} Restante{" "}
-                {item.Restante} Arribo {item.Arribo} Servicio {item.Servicio} IO
+                Proceso {item.Proceso} Previsto {item.Previsto} Restante {item.Restante} Arribo {item.Arribo} Servicio {item.Servicio} IO
                 {item.IO}
               </li>
             ))}
@@ -216,14 +216,14 @@ function App() {
           <ul>
             {finalizado.map((item, index) => (
               <li key={index}>
-                Proceso {item.Proceso} Previsto {item.Previsto} Restante
-                {item.Restante} Arribo {item.Arribo} Servicio {item.Servicio} IO{" "}
-                {item.IO}
+                Proceso {item.Proceso} Previsto {item.Previsto} Restante{item.Restante} Arribo {item.Arribo} Servicio {item.Servicio} IO {item.IO}
               </li>
             ))}
           </ul>
         </div>
       )}
+
+
     </>
   );
 }
