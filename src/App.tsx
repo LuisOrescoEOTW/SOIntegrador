@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import "./App.css";
 
 interface Proceso {
@@ -21,11 +21,57 @@ function App() {
   const [bloqueado, setBloqueado] = useState<Proceso[]>([]); //actBloqueado
   const [procesar, setProcesar] = useState<Proceso[]>([]); //actProcesar
   const [finalizado, setFinalizado] = useState<Proceso[]>([]); //upFinalizado
-  
-  const Procesar = () => {
+
+  const cargarArreglo = () => {
+    setNuevo([
+      {
+        Proceso: 1,
+        Previsto: 10,
+        Restante: 0,
+        Arribo: 0,
+        Servicio: 20,
+        IO: 0,
+        PrevistoH: 10,
+      },
+      {
+        Proceso: 2,
+        Previsto: 20,
+        Restante: 2,
+        Arribo: 4,
+        Servicio: 30,
+        IO: 0,
+        PrevistoH: 20,
+      },
+      {
+        Proceso: 3,
+        Previsto: 5,
+        Restante: 0,
+        Arribo: 8,
+        Servicio: 15,
+        IO: 0,
+        PrevistoH: 5,
+      },
+      {
+        Proceso: 4,
+        Previsto: 15,
+        Restante: 5,
+        Arribo: 10,
+        Servicio: 30,
+        IO: 0,
+        PrevistoH: 15,
+      },
+    ]);
+  };
+
+  useEffect(() => {
+    cargarArreglo();
+  }, []);
+
+  //FCFS*******************************************************************************
+  const FCFS = () => {
     const upCount = count + 1;
     const upListo = listo;
-
+    
     //NUEVO y LISTO
     const upNuevo = nuevo.filter((value) => {
       if (value.Arribo === upCount) {
@@ -45,109 +91,92 @@ function App() {
     const upBloqueado = actBloqueado.filter((value) => {
       if (value.IO === 0) {
         //Cargo en Listo el proceso seteado con IO 25
-        const valueModif = { ...value, IO: 25 };
-        upListo.push(valueModif);
+        upListo.push({ ...value });
         return false; // Elimina el elemento de nuevo
       }
       return true; // Mantiene el elemento en nuevo
     });
 
     //PROCESAR
-    //Disminuye el tiempo procesado en previsto y servicio
+    let upProcesar = procesar;
     if (procesar.length > 0) {
-      // Función para disminuir en 1
+      //Disminuye el tiempo procesado en previsto y servicio
       const actProcesar = procesar.map((value) => {
         return {
           ...value,
           Previsto: value.Previsto - 1,
           Servicio: value.Servicio - 1,
         };
-      });
-
+      });      
       //Quita de la lista los procesados finalizados
-      const upProcesar = actProcesar.filter((value) => {
+      upProcesar = actProcesar.filter((value) => {
         if (value.Servicio === 0) {
           setFinalizado((finalizado) => [...finalizado, value]);
           return false; // Elimina el elemento de nuevo
         } else {
           if (value.Previsto === 0) {
-            const valueModif = { ...value, Previsto: value.PrevistoH };
-            upBloqueado.push(valueModif);
+            upBloqueado.push({ ...value, Previsto: value.PrevistoH, IO: io });
             return false; // Elimina el elemento de nuevo
           } else {
             return true; // Mantiene el elemento en nuevo
           }
         }
       });
-      if (upProcesar.length == 0 && upListo.length > 0) {
-        upProcesar.push(upListo[0]); //Agrego el 1 elemento de listo a procesar
-        upListo.shift() //Elimino el 1 elemento de listo
-      }
-      setProcesar(upProcesar);
-    } else {
-      // Verifica si procesar esta vacio y listo tiene elementos
-      if (upListo.length > 0) {
-        setProcesar([upListo[0]]); //Agrego el 1 elemento de listo a procesar
-        upListo.shift() //Elimino el 1 elemento de listo
-      }
+    } 
+    // Verifica si procesar esta vacio y listo tiene elementos
+    if (upProcesar.length == 0 && upListo.length > 0) {
+      upProcesar.push(upListo[0]); //Agrego el 1 elemento de listo a procesar
+      upListo.shift(); //Elimino el 1 elemento de listo
     }
-    
+    setProcesar(upProcesar);
     setListo(upListo);
     setBloqueado(upBloqueado);
     setCount(upCount);
   };
 
-  const cargarArreglo = () => {
-    setNuevo([
-      {
-        Proceso: 1,
-        Previsto: 10,
-        Restante: 0,
-        Arribo: 0,
-        Servicio: 20,
-        IO: 25,
-        PrevistoH: 10,
-      },
-      {
-        Proceso: 2,
-        Previsto: 20,
-        Restante: 2,
-        Arribo: 4,
-        Servicio: 30,
-        IO: 25,
-        PrevistoH: 20,
-      },
-      {
-        Proceso: 3,
-        Previsto: 5,
-        Restante: 0,
-        Arribo: 8,
-        Servicio: 15,
-        IO: 25,
-        PrevistoH: 5,
-      },
-      {
-        Proceso: 4,
-        Previsto: 15,
-        Restante: 5,
-        Arribo: 10,
-        Servicio: 30,
-        IO: 25,
-        PrevistoH: 15,
-      },
-    ]);
-    // setNuevoInicial(nuevo);
+  //ROUND ROBIN*******************************************************************************  
+  const RR = () => {
   };
-
-  useEffect(() => {
-    cargarArreglo();
-  }, []);
+  
+  // Definir un "quantum" para almacenar el valor numérico
+  const [quantum, setQuantum] = useState<number>(0);
+  const handleQuantumChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setQuantum(parseInt(event.target.value));
+  };
+  
+  // Definir un "IO" para almacenar el valor numérico
+  const [io, setIo] = useState<number>(0);
+  const handleIOChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setIo(parseInt(event.target.value));
+  };
 
   return (
     <>
       <h1>- Sistemas Operativos -</h1>
+
+      <div>
+        <label htmlFor="quantumField">Quantum:  </label>
+        <input
+          type="number"
+          id="quantumField"
+          value={quantum}
+          onChange={handleQuantumChange}
+        />
+      </div>
+      <div>
+        <label htmlFor="ioField">I/O:  </label>
+        <input
+          type="number"
+          id="ioField"
+          value={io}
+          onChange={handleIOChange}
+        />
+      </div>
+
       <div className="card">
-        <button onClick={Procesar}>Tiempo {count}</button>
+        <p>TIEMPO {count}</p>
+        <button onClick={FCFS}>FCFS</button>
+        <button onClick={RR}>Round Robin</button>
       </div>
 
       {nuevo && (
