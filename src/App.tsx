@@ -1,3 +1,5 @@
+//DAle que va
+
 import { ChangeEvent, useEffect, useState } from "react";
 import "./App.css";
 
@@ -13,8 +15,6 @@ interface Proceso {
   TRN: number;
   TE: number;
 }
-
-//HACER TODAS LAS LOGICAS JUNTAS Y LUEGO AL FINAL RECIEN ACTUALIZAR TODO!!! EN EL SET DE CADA UNO. IR TRABAJANDO CON EL CONST LOCAL PARA COORDINAR LOS DATOS.
 
 function App() {
   const [count, setCount] = useState(-1);
