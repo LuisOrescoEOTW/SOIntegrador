@@ -16,7 +16,6 @@ interface Proceso {
   TRN: number;
   TE: number;
   TFP: number;
-  TCP: number;
 }
 
 function App() {
@@ -46,7 +45,6 @@ function App() {
         TRN: 0,
         TE: 0,
         TFP: 0,
-        TCP: 0,
       },
       {
         Proceso: 2,
@@ -61,7 +59,6 @@ function App() {
         TRN: 0,
         TE: 0,
         TFP: 0,
-        TCP: 0,
       },
       {
         Proceso: 3,
@@ -76,7 +73,6 @@ function App() {
         TRN: 0,
         TE: 0,
         TFP: 0,
-        TCP: 0,
       },
       {
         Proceso: 4,
@@ -91,7 +87,6 @@ function App() {
         TRN: 0,
         TE: 0,
         TFP: 0,
-        TCP: 0,
       },
     ]);
     setNumeroProcesos(4);
@@ -113,7 +108,6 @@ function App() {
         TRN: 0,
         TE: 0,
         TFP: 0,
-        TCP: 0,
       },
       {
         Proceso: 2,
@@ -128,7 +122,6 @@ function App() {
         TRN: 0,
         TE: 0,
         TFP: 0,
-        TCP: 0,
       },
       {
         Proceso: 3,
@@ -143,7 +136,6 @@ function App() {
         TRN: 0,
         TE: 0,
         TFP: 0,
-        TCP: 0,
       },
       {
         Proceso: 4,
@@ -158,7 +150,6 @@ function App() {
         TRN: 0,
         TE: 0,
         TFP: 0,
-        TCP: 0,
       },
     ]);
     setNumeroProcesos(4);
@@ -179,7 +170,7 @@ function App() {
     const upCount = count + 1;
     const upListo = listo;
     const upFinalizado = finalizado;
-
+    
     //NUEVO y LISTO
     const upNuevo = nuevo.filter((value) => {
       if (value.Arribo + tip === upCount) {
@@ -189,7 +180,7 @@ function App() {
       return true; // Mantiene el elemento en nuevo
     });
     setNuevo(upNuevo);
-
+    
     //BLOQUEADO
     //Disminuye en 1 el IO de todos los bloqueados
     const actBloqueado = bloqueado.map((value) => {
@@ -204,7 +195,7 @@ function App() {
       }
       return true; // Mantiene el elemento en nuevo
     });
-
+    
     //DESASIGNAR RECURSOS
     const actDesasignoRecursos = desasignoRecursos.map((value) => {
       return { ...value, TFP: value.TFP - 1 };
@@ -221,6 +212,7 @@ function App() {
     });
     
     //PROCESAR
+    let upTcpEP = tcpEP - 1 > 0 ? tcpEP - 1 : 0;
     let upProcesar = procesar;
     if (procesar.length > 0) {
       //Disminuye el tiempo procesado en previsto y servicio
@@ -234,13 +226,13 @@ function App() {
       //Quita de la lista los procesados finalizados
       upProcesar = actProcesar.filter((value) => {
         if (value.Servicio === 0) {
-          if (tfp === 0){
+          if (tfp === 0) {
             const retorno = upCount - value.Arribo - tip;
             upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
-            setFinalizado(upFinalizado);
           } else {
-            upDesasignoRecursos.push({ ...value,  TFP: tfp});
+            upDesasignoRecursos.push({ ...value, TFP: tfp });
           }
+          upTcpEP = tcp;
           return false; // Elimina el elemento de nuevo
         } else {
           if (value.Previsto === 0) {
@@ -252,6 +244,7 @@ function App() {
               : value.PrevistoH,
               IO: io,
             });
+            upTcpEP = tcp;
             return false; // Elimina el elemento de nuevo
           } else {
             return true; // Mantiene el elemento en nuevo
@@ -259,12 +252,13 @@ function App() {
         }
       });
     }
-    // Verifica si procesar esta vacio y listo tiene elementos
-    if (upProcesar.length == 0 && upListo.length > 0) {
+    // Verifica si procesar esta vacio y listo tiene elementos y no hay tiempo en TCP
+    if (upProcesar.length == 0 && upListo.length > 0 && upTcpEP == 0) {
       upProcesar.push(upListo[0]); //Agrego el 1 elemento de listo a procesar
       upListo.shift(); //Elimino el 1 elemento de listo
     }
-    
+
+    setTcpEP(upTcpEP)
     setDesasignoRecursos(upDesasignoRecursos)
     setFinalizado(upFinalizado);
     setProcesar(upProcesar);
@@ -278,6 +272,7 @@ function App() {
   const Prioridad = () => {
     const upCount = count + 1;
     const upListo = listo;
+    const upFinalizado = finalizado;
 
     //NUEVO y LISTO
     const upNuevo = nuevo.filter((value) => {
@@ -307,7 +302,23 @@ function App() {
     //Ordeno upListo de menor a mayor por Prioridad
     upListo.sort((a, b) => a.Prioridad - b.Prioridad);
 
+    //DESASIGNAR RECURSOS
+    const actDesasignoRecursos = desasignoRecursos.map((value) => {
+      return { ...value, TFP: value.TFP - 1 };
+    });
+    //Quita de la lista de desasignar recursos y agrega en Finalizados
+    const upDesasignoRecursos = actDesasignoRecursos.filter((value) => {
+      if (value.TFP === 0) {
+        //Cargo en Finalizado
+        const retornos = upCount - value.Arribo - tip;
+        upFinalizado.push({ ...value, TR: retornos, TRN: (retornos / value.ServicioH), TE: (retornos - value.ServicioH - io) });
+        return false; // Elimina el elemento de nuevo
+      }
+      return true; // Mantiene el elemento en nuevo
+    });
+
     //PROCESAR
+    let upTcpEP = tcpEP - 1 > 0 ? tcpEP - 1 : 0;
     let upProcesar = procesar;
     if (procesar.length > 0) {
       //Disminuye el tiempo procesado en previsto y servicio
@@ -321,10 +332,13 @@ function App() {
       //Quita de la lista los procesados finalizados
       upProcesar = actProcesar.filter((value) => {
         if (value.Servicio === 0) {
-          const upFinalizado = finalizado;
-          const retorno = upCount - value.Arribo - tip;
-          upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
-          setFinalizado(upFinalizado);
+          if (tfp === 0) {
+            const retorno = upCount - value.Arribo - tip;
+            upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
+          } else {
+            upDesasignoRecursos.push({ ...value, TFP: tfp });
+          }
+          upTcpEP = tcp;
           return false; // Elimina el elemento de nuevo
         } else {
           if (value.Prioridad < upListo[0]?.Prioridad || value.Previsto === 0) {
@@ -346,6 +360,7 @@ function App() {
                     : value.PrevistoH
               });
             }
+            upTcpEP = tcp;
             return false; // Elimina el elemento de nuevo
           } else {
             return true; // Mantiene el elemento en nuevo
@@ -354,10 +369,13 @@ function App() {
       });
     }
     // Verifica si procesar esta vacio y listo tiene elementos
-    if (upProcesar.length == 0 && upListo.length > 0) {
+    if (upProcesar.length == 0 && upListo.length > 0 && upTcpEP == 0) {
       upProcesar.push(upListo[0]); //Agrego el 1 elemento de listo a procesar
       upListo.shift(); //Elimino el 1 elemento de listo
     }
+    setTcpEP(upTcpEP)
+    setDesasignoRecursos(upDesasignoRecursos)
+    setFinalizado(upFinalizado);
     setProcesar(upProcesar);
     setListo(upListo);
     setBloqueado(upBloqueado);
@@ -368,6 +386,7 @@ function App() {
   const RR = () => {
     const upCount = count + 1;
     const upListo = listo;
+    const upFinalizado = finalizado;
 
     //NUEVO y LISTO queda igual
     const upNuevo = nuevo.filter((value) => {
@@ -394,7 +413,23 @@ function App() {
       return true; // Mantiene el elemento en nuevo
     });
 
+    //DESASIGNAR RECURSOS
+    const actDesasignoRecursos = desasignoRecursos.map((value) => {
+      return { ...value, TFP: value.TFP - 1 };
+    });
+    //Quita de la lista de desasignar recursos y agrega en Finalizados
+    const upDesasignoRecursos = actDesasignoRecursos.filter((value) => {
+      if (value.TFP === 0) {
+        //Cargo en Finalizado
+        const retornos = upCount - value.Arribo - tip;
+        upFinalizado.push({ ...value, TR: retornos, TRN: (retornos / value.ServicioH), TE: (retornos - value.ServicioH - io) });
+        return false; // Elimina el elemento de nuevo
+      }
+      return true; // Mantiene el elemento en nuevo
+    });
+
     //PROCESAR
+    let upTcpEP = tcpEP - 1 > 0 ? tcpEP - 1 : 0;
     let upProcesar = procesar;
     if (procesar.length > 0) {
       //Disminuye el quantum procesado en previsto y servicio
@@ -410,10 +445,13 @@ function App() {
       //Quita de la lista los procesados finalizados
       upProcesar = actProcesar.filter((value) => {
         if (value.Servicio === 0) {
-          const upFinalizado = finalizado;
-          const retorno = upCount - value.Arribo - tip;
-          upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
-          setFinalizado(upFinalizado);
+          if (tfp === 0) {
+            const retorno = upCount - value.Arribo - tip;
+            upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
+          } else {
+            upDesasignoRecursos.push({ ...value, TFP: tfp });
+          }
+          upTcpEP = tcp;
           return false; // Elimina el elemento de nuevo
         } else {
           if (upQuantumEC === 0 || value.Previsto === 0) {
@@ -435,6 +473,7 @@ function App() {
                 IO: io,
               });
             }
+            upTcpEP = tcp;
             return false; // Elimina el elemento de nuevo
           } else {
             return true; // Mantiene el elemento en nuevo
@@ -443,11 +482,14 @@ function App() {
       });
     }
     // Verifica si procesar esta vacio y listo tiene elementos
-    if (upProcesar.length == 0 && upListo.length > 0) {
+    if (upProcesar.length == 0 && upListo.length > 0 && upTcpEP == 0) {
       setQuantumEC(quantum); //Cargo el quantum para descontar
       upProcesar.push(upListo[0]); //Agrego el 1 elemento de listo a procesar
       upListo.shift(); //Elimino el 1 elemento de listo
     }
+    setTcpEP(upTcpEP)
+    setDesasignoRecursos(upDesasignoRecursos)
+    setFinalizado(upFinalizado);
     setProcesar(upProcesar);
     setListo(upListo);
     setBloqueado(upBloqueado);
@@ -458,6 +500,7 @@ function App() {
   const SPN = () => {
     const upCount = count + 1;
     const upListo = listo;
+    const upFinalizado = finalizado;
 
     //NUEVO y LISTO
     const upNuevo = nuevo.filter((value) => {
@@ -484,10 +527,26 @@ function App() {
       return true; // Mantiene el elemento en nuevo
     });
 
+    //DESASIGNAR RECURSOS
+    const actDesasignoRecursos = desasignoRecursos.map((value) => {
+      return { ...value, TFP: value.TFP - 1 };
+    });
+    //Quita de la lista de desasignar recursos y agrega en Finalizados
+    const upDesasignoRecursos = actDesasignoRecursos.filter((value) => {
+      if (value.TFP === 0) {
+        //Cargo en Finalizado
+        const retornos = upCount - value.Arribo - tip;
+        upFinalizado.push({ ...value, TR: retornos, TRN: (retornos / value.ServicioH), TE: (retornos - value.ServicioH - io) });
+        return false; // Elimina el elemento de nuevo
+      }
+      return true; // Mantiene el elemento en nuevo
+    });
+
     //Ordeno upListo de menor a mayor por Servicio
     upListo.sort((a, b) => a.Previsto - b.Previsto);
 
     //PROCESAR
+    let upTcpEP = tcpEP - 1 > 0 ? tcpEP - 1 : 0;
     let upProcesar = procesar;
     if (procesar.length > 0) {
       //Disminuye el tiempo procesado en previsto y servicio
@@ -501,10 +560,13 @@ function App() {
       //Quita de la lista los procesados finalizados
       upProcesar = actProcesar.filter((value) => {
         if (value.Servicio === 0) {
-          const upFinalizado = finalizado;
-          const retorno = upCount - value.Arribo - tip;
-          upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
-          setFinalizado(upFinalizado);
+          if (tfp === 0) {
+            const retorno = upCount - value.Arribo - tip;
+            upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
+          } else {
+            upDesasignoRecursos.push({ ...value, TFP: tfp });
+          }
+          upTcpEP = tcp;
           return false; // Elimina el elemento de nuevo
         } else {
           if (value.Previsto === 0) {
@@ -516,6 +578,7 @@ function App() {
                   : value.PrevistoH,
               IO: io,
             });
+            upTcpEP = tcp;
             return false; // Elimina el elemento de nuevo
           } else {
             return true; // Mantiene el elemento en nuevo
@@ -524,10 +587,13 @@ function App() {
       });
     }
     // Verifica si procesar esta vacio y listo tiene elementos
-    if (upProcesar.length == 0 && upListo.length > 0) {
+    if (upProcesar.length == 0 && upListo.length > 0 && upTcpEP == 0) {
       upProcesar.push(upListo[0]); //Agrego el 1 elemento de listo a procesar
       upListo.shift(); //Elimino el 1 elemento de listo
     }
+    setTcpEP(upTcpEP)
+    setDesasignoRecursos(upDesasignoRecursos)
+    setFinalizado(upFinalizado);
     setProcesar(upProcesar);
     setListo(upListo);
     setBloqueado(upBloqueado);
@@ -538,6 +604,7 @@ function App() {
   const SRTN = () => {
     const upCount = count + 1;
     const upListo = listo;
+    const upFinalizado = finalizado;
 
     //NUEVO y LISTO
     const upNuevo = nuevo.filter((value) => {
@@ -564,10 +631,26 @@ function App() {
       return true; // Mantiene el elemento en nuevo
     });
 
+    //DESASIGNAR RECURSOS
+    const actDesasignoRecursos = desasignoRecursos.map((value) => {
+      return { ...value, TFP: value.TFP - 1 };
+    });
+    //Quita de la lista de desasignar recursos y agrega en Finalizados
+    const upDesasignoRecursos = actDesasignoRecursos.filter((value) => {
+      if (value.TFP === 0) {
+        //Cargo en Finalizado
+        const retornos = upCount - value.Arribo - tip;
+        upFinalizado.push({ ...value, TR: retornos, TRN: (retornos / value.ServicioH), TE: (retornos - value.ServicioH - io) });
+        return false; // Elimina el elemento de nuevo
+      }
+      return true; // Mantiene el elemento en nuevo
+    });
+
     //Ordeno upListo de menor a mayor por Servicio
     upListo.sort((a, b) => a.Previsto - b.Previsto);
 
     //PROCESAR
+    let upTcpEP = tcpEP - 1 > 0 ? tcpEP - 1 : 0;
     let upProcesar = procesar;
     if (procesar.length > 0) {
       //Disminuye el tiempo procesado en previsto y servicio
@@ -581,10 +664,13 @@ function App() {
       //Quita de la lista los procesados finalizados
       upProcesar = actProcesar.filter((value) => {
         if (value.Servicio === 0) {
-          const upFinalizado = finalizado;
-          const retorno = upCount - value.Arribo - tip;
-          upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
-          setFinalizado(upFinalizado);
+          if (tfp === 0) {
+            const retorno = upCount - value.Arribo - tip;
+            upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
+          } else {
+            upDesasignoRecursos.push({ ...value, TFP: tfp });
+          }
+          upTcpEP = tcp;
           return false; // Elimina el elemento de nuevo
         } else {
           if (value.Previsto > upListo[0]?.Previsto || value.Previsto === 0) {
@@ -606,6 +692,7 @@ function App() {
                     : value.PrevistoH,
               });
             }
+            upTcpEP = tcp;
             return false; // Elimina el elemento de nuevo
           } else {
             return true; // Mantiene el elemento en nuevo
@@ -614,10 +701,13 @@ function App() {
       });
     }
     // Verifica si procesar esta vacio y listo tiene elementos
-    if (upProcesar.length == 0 && upListo.length > 0) {
+    if (upProcesar.length == 0 && upListo.length > 0 && upTcpEP == 0) {
       upProcesar.push(upListo[0]); //Agrego el 1 elemento de listo a procesar
       upListo.shift(); //Elimino el 1 elemento de listo
     }
+    setTcpEP(upTcpEP)
+    setDesasignoRecursos(upDesasignoRecursos)
+    setFinalizado(upFinalizado);
     setProcesar(upProcesar);
     setListo(upListo);
     setBloqueado(upBloqueado);
@@ -656,6 +746,7 @@ function App() {
   };
   // Definir un "TCP" para almacenar el valor numérico
   const [tcp, setTcp] = useState<number>(0);
+  const [tcpEP, setTcpEP] = useState<number>(0);
   const handleTcp = (event: ChangeEvent<HTMLInputElement>) => {
     const valor =
       parseInt(event.target.value) === -1 ? 0 : parseInt(event.target.value);
@@ -816,11 +907,11 @@ function App() {
 
       {nuevo && (
         <div>
-          <h2>Nuevo:</h2>
+          <h2>Nuevo: TIP={tip} </h2>
           <ul>
             {nuevo.map((item, index) => (
               <li key={index}>
-                Proceso {item.Proceso} Arribo {item.Arribo} TIP {item.TIP}
+                Proceso {item.Proceso} Arribo {item.Arribo} 
               </li>
             ))}
           </ul>
@@ -855,11 +946,24 @@ function App() {
 
       {procesar && (
         <div>
-          <h2>PROCESANDO: Quantum Procesado: {quantumEC}</h2>
+          <h2>PROCESANDO: Q={quantumEC} TCP={tcpEP}</h2>
           <ul>
             {procesar.map((item, index) => (
               <li key={index}>
                 Proceso {item.Proceso} Prioridad {item.Prioridad} Previsto {item.Previsto} Servicio {item.Servicio}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {desasignoRecursos && (
+        <div>
+          <h2>Desasignando Recursos: TFP={tfp}</h2>
+          <ul>
+            {desasignoRecursos.map((item, index) => (
+              <li key={index}>
+                Proceso {item.Proceso} TFP {item.TFP}
               </li>
             ))}
           </ul>
