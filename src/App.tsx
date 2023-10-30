@@ -10,20 +10,24 @@ interface Proceso {
   PrevistoH: number;
   Servicio: number;
   ServicioH: number;
+  Prioridad: number;
   IO: number;
   TR: number;
   TRN: number;
   TE: number;
+  TFP: number;
+  TCP: number;
 }
 
 function App() {
   const [count, setCount] = useState(-1);
   const [numeroProcesos, setNumeroProcesos] = useState(-1);
-  const [inicial, setInicial] = useState<Proceso[]>([]); //upInicial
+  // const [inicial, setInicial] = useState<Proceso[]>([]); //upInicial
   const [nuevo, setNuevo] = useState<Proceso[]>([]); //upNuevo
   const [listo, setListo] = useState<Proceso[]>([]); //upListo
   const [bloqueado, setBloqueado] = useState<Proceso[]>([]); //actBloqueado
   const [procesar, setProcesar] = useState<Proceso[]>([]); //actProcesar
+  const [desasignoRecursos, setDesasignoRecursos] = useState<Proceso[]>([]); //actDesasignoRecursos
   const [finalizado, setFinalizado] = useState<Proceso[]>([]); //upFinalizado
 
   //Para hacer un commit
@@ -36,10 +40,13 @@ function App() {
         PrevistoH: 10,
         Servicio: 20,
         ServicioH: 20,
+        Prioridad: 1,
         IO: 0,
         TR: 0,
         TRN: 0,
         TE: 0,
+        TFP: 0,
+        TCP: 0,
       },
       {
         Proceso: 2,
@@ -48,10 +55,13 @@ function App() {
         PrevistoH: 20,
         Servicio: 30,
         ServicioH: 30,
+        Prioridad: 2,
         IO: 0,
         TR: 0,
         TRN: 0,
         TE: 0,
+        TFP: 0,
+        TCP: 0,
       },
       {
         Proceso: 3,
@@ -60,10 +70,13 @@ function App() {
         PrevistoH: 5,
         Servicio: 15,
         ServicioH: 15,
+        Prioridad: 4,
         IO: 0,
         TR: 0,
         TRN: 0,
         TE: 0,
+        TFP: 0,
+        TCP: 0,
       },
       {
         Proceso: 4,
@@ -72,10 +85,13 @@ function App() {
         PrevistoH: 15,
         Servicio: 30,
         ServicioH: 30,
+        Prioridad: 3,
         IO: 0,
         TR: 0,
         TRN: 0,
         TE: 0,
+        TFP: 0,
+        TCP: 0,
       },
     ]);
     setNumeroProcesos(4);
@@ -91,10 +107,13 @@ function App() {
         PrevistoH: 2,
         Servicio: 4,
         ServicioH: 4,
+        Prioridad: 10,
         IO: 0,
         TR: 0,
         TRN: 0,
         TE: 0,
+        TFP: 0,
+        TCP: 0,
       },
       {
         Proceso: 2,
@@ -103,10 +122,13 @@ function App() {
         PrevistoH: 2,
         Servicio: 3,
         ServicioH: 3,
+        Prioridad: 9,
         IO: 0,
         TR: 0,
         TRN: 0,
         TE: 0,
+        TFP: 0,
+        TCP: 0,
       },
       {
         Proceso: 3,
@@ -115,10 +137,13 @@ function App() {
         PrevistoH: 5,
         Servicio: 6,
         ServicioH: 6,
+        Prioridad: 1,
         IO: 0,
         TR: 0,
         TRN: 0,
         TE: 0,
+        TFP: 0,
+        TCP: 0,
       },
       {
         Proceso: 4,
@@ -127,18 +152,21 @@ function App() {
         PrevistoH: 5,
         Servicio: 10,
         ServicioH: 10,
+        Prioridad: 5,
         IO: 0,
         TR: 0,
         TRN: 0,
         TE: 0,
+        TFP: 0,
+        TCP: 0,
       },
     ]);
     setNumeroProcesos(4);
   };
-  useEffect(() => {
-    setInicial(nuevo);
-  }, [nuevo])
-  
+  // useEffect(() => {
+  //   setInicial(nuevo);
+  // }, [nuevo])
+
 
   useEffect(() => {
     cargarArreglo();
@@ -150,10 +178,11 @@ function App() {
   const FCFS = () => {
     const upCount = count + 1;
     const upListo = listo;
+    const upFinalizado = finalizado;
 
     //NUEVO y LISTO
     const upNuevo = nuevo.filter((value) => {
-      if (value.Arribo === upCount) {
+      if (value.Arribo + tip === upCount) {
         upListo.push(value);
         return false; // Elimina el elemento de nuevo
       }
@@ -176,6 +205,108 @@ function App() {
       return true; // Mantiene el elemento en nuevo
     });
 
+    //DESASIGNAR RECURSOS
+    const actDesasignoRecursos = desasignoRecursos.map((value) => {
+      return { ...value, TFP: value.TFP - 1 };
+    });
+    //Quita de la lista de desasignar recursos y agrega en Finalizados
+    const upDesasignoRecursos = actDesasignoRecursos.filter((value) => {
+      if (value.TFP === 0) {
+        //Cargo en Finalizado
+        const retornos = upCount - value.Arribo - tip;
+        upFinalizado.push({ ...value, TR: retornos, TRN: (retornos / value.ServicioH), TE: (retornos - value.ServicioH - io) });
+        return false; // Elimina el elemento de nuevo
+      }
+      return true; // Mantiene el elemento en nuevo
+    });
+    
+    //PROCESAR
+    let upProcesar = procesar;
+    if (procesar.length > 0) {
+      //Disminuye el tiempo procesado en previsto y servicio
+      const actProcesar = procesar.map((value) => {
+        return {
+          ...value,
+          Previsto: value.Previsto - 1,
+          Servicio: value.Servicio - 1,
+        };
+      });
+      //Quita de la lista los procesados finalizados
+      upProcesar = actProcesar.filter((value) => {
+        if (value.Servicio === 0) {
+          if (tfp === 0){
+            const retorno = upCount - value.Arribo - tip;
+            upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
+            setFinalizado(upFinalizado);
+          } else {
+            upDesasignoRecursos.push({ ...value,  TFP: tfp});
+          }
+          return false; // Elimina el elemento de nuevo
+        } else {
+          if (value.Previsto === 0) {
+            upBloqueado.push({
+              ...value,
+              Previsto:
+              value.Servicio < value.PrevistoH
+              ? value.Servicio
+              : value.PrevistoH,
+              IO: io,
+            });
+            return false; // Elimina el elemento de nuevo
+          } else {
+            return true; // Mantiene el elemento en nuevo
+          }
+        }
+      });
+    }
+    // Verifica si procesar esta vacio y listo tiene elementos
+    if (upProcesar.length == 0 && upListo.length > 0) {
+      upProcesar.push(upListo[0]); //Agrego el 1 elemento de listo a procesar
+      upListo.shift(); //Elimino el 1 elemento de listo
+    }
+    
+    setDesasignoRecursos(upDesasignoRecursos)
+    setFinalizado(upFinalizado);
+    setProcesar(upProcesar);
+    setListo(upListo);
+    setBloqueado(upBloqueado);
+    setCount(upCount);
+  };
+
+  //Prioridad*******************************************************************************
+  //El de mayor valor es mas prioridad
+  const Prioridad = () => {
+    const upCount = count + 1;
+    const upListo = listo;
+
+    //NUEVO y LISTO
+    const upNuevo = nuevo.filter((value) => {
+      if (value.Arribo + tip === upCount) {
+        upListo.push(value);
+        return false; // Elimina el elemento de nuevo
+      }
+      return true; // Mantiene el elemento en nuevo
+    });
+    setNuevo(upNuevo);
+
+    //BLOQUEADO
+    //Disminuye en 1 el IO de todos los bloqueados
+    const actBloqueado = bloqueado.map((value) => {
+      return { ...value, IO: value.IO - 1 };
+    });
+    //Quita de la lista de bloqueados ya agrega en Listos
+    const upBloqueado = actBloqueado.filter((value) => {
+      if (value.IO === 0) {
+        //Cargo en Listo el proceso seteado con IO cargado
+        upListo.push({ ...value });
+        return false; // Elimina el elemento de nuevo
+      }
+      return true; // Mantiene el elemento en nuevo
+    });
+
+    //Ordeno upListo de menor a mayor por Prioridad
+    upListo.sort((a, b) => a.Prioridad - b.Prioridad);
+
     //PROCESAR
     let upProcesar = procesar;
     if (procesar.length > 0) {
@@ -191,20 +322,30 @@ function App() {
       upProcesar = actProcesar.filter((value) => {
         if (value.Servicio === 0) {
           const upFinalizado = finalizado;
-          const retorno = upCount - value.Arribo;
+          const retorno = upCount - value.Arribo - tip;
           upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
           setFinalizado(upFinalizado);
           return false; // Elimina el elemento de nuevo
         } else {
-          if (value.Previsto === 0) {
-            upBloqueado.push({
-              ...value,
-              Previsto:
-                value.Servicio < value.PrevistoH
-                  ? value.Servicio
-                  : value.PrevistoH,
-              IO: io,
-            });
+          if (value.Prioridad < upListo[0]?.Prioridad || value.Previsto === 0) {
+            if (value.Previsto === 0) {
+              upBloqueado.push({
+                ...value,
+                Previsto:
+                  value.Servicio < value.PrevistoH
+                    ? value.Servicio
+                    : value.PrevistoH,
+                IO: io,
+              });
+            } else {
+              upListo.push({
+                ...value,
+                Previsto:
+                  value.Servicio < value.PrevistoH
+                    ? value.Servicio
+                    : value.PrevistoH
+              });
+            }
             return false; // Elimina el elemento de nuevo
           } else {
             return true; // Mantiene el elemento en nuevo
@@ -230,7 +371,7 @@ function App() {
 
     //NUEVO y LISTO queda igual
     const upNuevo = nuevo.filter((value) => {
-      if (value.Arribo === upCount) {
+      if (value.Arribo + tip === upCount) {
         upListo.push(value);
         return false; // Elimina el elemento de nuevo
       }
@@ -270,20 +411,30 @@ function App() {
       upProcesar = actProcesar.filter((value) => {
         if (value.Servicio === 0) {
           const upFinalizado = finalizado;
-          const retorno = upCount - value.Arribo;
+          const retorno = upCount - value.Arribo - tip;
           upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
           setFinalizado(upFinalizado);
           return false; // Elimina el elemento de nuevo
         } else {
           if (upQuantumEC === 0 || value.Previsto === 0) {
-            upBloqueado.push({
-              ...value,
-              Previsto:
-                value.Servicio < value.PrevistoH
-                  ? value.Servicio
-                  : value.PrevistoH,
-              IO: io,
-            });
+            if (upQuantumEC === 0) {
+              upListo.push({
+                ...value,
+                Previsto:
+                  value.Servicio < value.PrevistoH
+                    ? value.Servicio
+                    : value.PrevistoH,
+              });
+            } else {
+              upBloqueado.push({
+                ...value,
+                Previsto:
+                  value.Servicio < value.PrevistoH
+                    ? value.Servicio
+                    : value.PrevistoH,
+                IO: io,
+              });
+            }
             return false; // Elimina el elemento de nuevo
           } else {
             return true; // Mantiene el elemento en nuevo
@@ -303,14 +454,14 @@ function App() {
     setCount(upCount);
   };
 
-  //SJF*******************************************************************************
-  const SJF = () => {
+  //SPN*******************************************************************************
+  const SPN = () => {
     const upCount = count + 1;
     const upListo = listo;
 
     //NUEVO y LISTO
     const upNuevo = nuevo.filter((value) => {
-      if (value.Arribo === upCount) {
+      if (value.Arribo + tip === upCount) {
         upListo.push(value);
         return false; // Elimina el elemento de nuevo
       }
@@ -351,7 +502,7 @@ function App() {
       upProcesar = actProcesar.filter((value) => {
         if (value.Servicio === 0) {
           const upFinalizado = finalizado;
-          const retorno = upCount - value.Arribo;
+          const retorno = upCount - value.Arribo - tip;
           upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
           setFinalizado(upFinalizado);
           return false; // Elimina el elemento de nuevo
@@ -383,14 +534,14 @@ function App() {
     setCount(upCount);
   };
 
-  //SRT*******************************************************************************
-  const SRT = () => {
+  //SRTN*******************************************************************************
+  const SRTN = () => {
     const upCount = count + 1;
     const upListo = listo;
 
     //NUEVO y LISTO
     const upNuevo = nuevo.filter((value) => {
-      if (value.Arribo === upCount) {
+      if (value.Arribo + tip === upCount) {
         upListo.push(value);
         return false; // Elimina el elemento de nuevo
       }
@@ -431,20 +582,30 @@ function App() {
       upProcesar = actProcesar.filter((value) => {
         if (value.Servicio === 0) {
           const upFinalizado = finalizado;
-          const retorno = upCount - value.Arribo;
+          const retorno = upCount - value.Arribo - tip;
           upFinalizado.push({ ...value, TR: retorno, TRN: (retorno / value.ServicioH), TE: (retorno - value.ServicioH - io) });
           setFinalizado(upFinalizado);
           return false; // Elimina el elemento de nuevo
         } else {
           if (value.Previsto > upListo[0]?.Previsto || value.Previsto === 0) {
-            upBloqueado.push({
-              ...value,
-              Previsto:
-                value.Servicio < value.PrevistoH
-                  ? value.Servicio
-                  : value.PrevistoH,
-              IO: io,
-            });
+            if (value.Previsto === 0) {
+              upBloqueado.push({
+                ...value,
+                Previsto:
+                  value.Servicio < value.PrevistoH
+                    ? value.Servicio
+                    : value.PrevistoH,
+                IO: io,
+              });
+            } else {
+              upListo.push({
+                ...value,
+                Previsto:
+                  value.Servicio < value.PrevistoH
+                    ? value.Servicio
+                    : value.PrevistoH,
+              });
+            }
             return false; // Elimina el elemento de nuevo
           } else {
             return true; // Mantiene el elemento en nuevo
@@ -479,21 +640,44 @@ function App() {
       parseInt(event.target.value) === 0 ? 1 : parseInt(event.target.value);
     setIo(valor);
   };
+  // Definir un "TIP" para almacenar el valor numérico
+  const [tip, setTip] = useState<number>(0);
+  const handleTip = (event: ChangeEvent<HTMLInputElement>) => {
+    const valor =
+      parseInt(event.target.value) === -1 ? 0 : parseInt(event.target.value);
+    setTip(valor);
+  };
+  // Definir un "TFP" para almacenar el valor numérico
+  const [tfp, setTfp] = useState<number>(0);
+  const handleTfp = (event: ChangeEvent<HTMLInputElement>) => {
+    const valor =
+      parseInt(event.target.value) === -1 ? 0 : parseInt(event.target.value);
+    setTfp(valor);
+  };
+  // Definir un "TCP" para almacenar el valor numérico
+  const [tcp, setTcp] = useState<number>(0);
+  const handleTcp = (event: ChangeEvent<HTMLInputElement>) => {
+    const valor =
+      parseInt(event.target.value) === -1 ? 0 : parseInt(event.target.value);
+    setTcp(valor);
+  };
 
   // Deshabilita los otros botones
   const [habilitados, setHabilitados] = useState({
     FCFS: true,
+    Prioridad: true,
     RR: true,
-    SJF: true,
-    SRT: true,
+    SPN: true,
+    SRTN: true,
     tiempo: false,
   });
   const habilitarBotones = (value: string) => {
     setHabilitados({
       FCFS: value === "FCFS",
+      Prioridad: value === "Prioridad",
       RR: value === "RR",
-      SJF: value === "SJF",
-      SRT: value === "SRT",
+      SPN: value === "SPN",
+      SRTN: value === "SRTN",
       tiempo: true,
     });
   };
@@ -513,7 +697,6 @@ function App() {
       getSumTME = getSumTME + value.TE;
     });
     setTME(getSumTME / finalizado.length);
-
     setVerCalculos(true);
   };
 
@@ -522,14 +705,17 @@ function App() {
     if (habilitados.FCFS) {
       FCFS();
     }
+    if (habilitados.Prioridad) {
+      Prioridad();
+    }
     if (habilitados.RR) {
       RR();
     }
-    if (habilitados.SJF) {
-      SJF();
+    if (habilitados.SPN) {
+      SPN();
     }
-    if (habilitados.SRT) {
-      SRT();
+    if (habilitados.SRTN) {
+      SRTN();
     }
     if (finalizado.length === numeroProcesos) {
       habilitados.tiempo = false;
@@ -559,6 +745,33 @@ function App() {
           onChange={handleQuantumChange}
         />
       </div>
+      <div>
+        <label htmlFor="tipField">TIP: </label>
+        <input
+          type="number"
+          id="tipField"
+          value={tip}
+          onChange={handleTip}
+        />
+      </div>
+      <div>
+        <label htmlFor="tfpField">TFP: </label>
+        <input
+          type="number"
+          id="tfpField"
+          value={tfp}
+          onChange={handleTfp}
+        />
+      </div>
+      <div>
+        <label htmlFor="tcpField">TCP: </label>
+        <input
+          type="number"
+          id="tcpField"
+          value={tcp}
+          onChange={handleTcp}
+        />
+      </div>
 
       <div className="card">
         <p>TIEMPO {count}</p>
@@ -571,22 +784,28 @@ function App() {
             FCFS
           </button>
           <button
+            onClick={() => habilitarBotones("Prioridad")}
+            disabled={!habilitados.Prioridad}
+          >
+            Prioridad
+          </button>
+          <button
             onClick={() => habilitarBotones("RR")}
             disabled={!habilitados.RR}
           >
             RR
           </button>
           <button
-            onClick={() => habilitarBotones("SJF")}
-            disabled={!habilitados.SJF}
+            onClick={() => habilitarBotones("SPN")}
+            disabled={!habilitados.SPN}
           >
-            SJF
+            SPN
           </button>
           <button
-            onClick={() => habilitarBotones("SRT")}
-            disabled={!habilitados.SRT}
+            onClick={() => habilitarBotones("SRTN")}
+            disabled={!habilitados.SRTN}
           >
-            SRT
+            SRTN
           </button>
         </div>
 
@@ -601,7 +820,7 @@ function App() {
           <ul>
             {nuevo.map((item, index) => (
               <li key={index}>
-                Proceso {item.Proceso} Arribo {item.Arribo}
+                Proceso {item.Proceso} Arribo {item.Arribo} TIP {item.TIP}
               </li>
             ))}
           </ul>
@@ -614,8 +833,7 @@ function App() {
           <ul>
             {listo.map((item, index) => (
               <li key={index}>
-                Proceso {item.Proceso} Previsto {item.Previsto} Servicio{" "}
-                {item.Servicio}
+                Proceso {item.Proceso} Prioridad {item.Prioridad} Previsto {item.Previsto} Servicio {item.Servicio}
               </li>
             ))}
           </ul>
@@ -641,8 +859,7 @@ function App() {
           <ul>
             {procesar.map((item, index) => (
               <li key={index}>
-                Proceso {item.Proceso} Previsto {item.Previsto} Servicio{" "}
-                {item.Servicio}
+                Proceso {item.Proceso} Prioridad {item.Prioridad} Previsto {item.Previsto} Servicio {item.Servicio}
               </li>
             ))}
           </ul>
@@ -655,7 +872,7 @@ function App() {
           <ul>
             {finalizado.map((item, index) => (
               <li key={index}>
-                Proceso {item.Proceso} Previsto {item.Previsto} PrevistoAlIniciar {item.PrevistoH} Arribo {item.Arribo} Servicio {item.Servicio} ServicioAlIniciar {item.ServicioH}
+                Proceso {item.Proceso} Previsto {item.Previsto} PrevistoAlIniciar {item.PrevistoH} Arribo {item.Arribo} Servicio {item.Servicio} ServicioAlIniciar {item.ServicioH} Prioridad {item.Prioridad}
               </li>
             ))}
           </ul>
@@ -677,7 +894,7 @@ function App() {
           <ul>
             {finalizado.map((item, index) => (
               <li key={index}>
-                Proceso {item.Proceso} TRN {item.TRN}
+                Proceso {item.Proceso} TRN {item.TRN.toFixed(2)}
               </li>
             ))}
           </ul>
