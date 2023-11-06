@@ -1,0 +1,74 @@
+[
+  { 
+    "Proceso": 1, 
+    "Arribo": 0, 
+    "Previsto": 2, 
+    "PrevistoH": 2, 
+    "Servicio": 4, 
+    "ServicioH": 4, 
+    "Prioridad": 10, 
+    "IO": 0, 
+    "TR": 0, 
+    "TRN": 0, 
+    "TE": 0, 
+    "TFP": 0 
+  },
+  { 
+    "Proceso": 2, 
+    "Arribo": 4, 
+    "Previsto": 2, 
+    "PrevistoH": 2, 
+    "Servicio": 3, 
+    "ServicioH": 3, 
+    "Prioridad": 9, 
+    "IO": 0, 
+    "TR": 0, 
+    "TRN": 0, 
+    "TE": 0, 
+    "TFP": 0 
+  },
+  { 
+    "Proceso": 3, 
+    "Arribo": 8, 
+    "Previsto": 5, 
+    "PrevistoH": 5, 
+    "Servicio": 6, 
+    "ServicioH": 6,
+    "Prioridad": 1, 
+    "IO": 0, 
+    "TR": 0, 
+    "TRN": 0, 
+    "TE": 0, 
+    "TFP": 0 
+  },
+  { 
+    "Proceso": 4, 
+    "Arribo": 10, 
+    "Previsto": 5, 
+    "PrevistoH": 5, 
+    "Servicio": 10, 
+    "ServicioH": 10, 
+    "Prioridad": 5, 
+    "IO": 0, 
+    "TR": 0, 
+    "TRN": 0, 
+    "TE": 0, 
+    "TFP": 0 
+  },
+  { 
+    "Proceso": 5, 
+    "Arribo": 11, 
+    "Previsto": 4, 
+    "PrevistoH": 4, 
+    "Servicio": 4, 
+    "ServicioH": 4, 
+    "Prioridad": 4, 
+    "IO": 0, 
+    "TR": 0, 
+    "TRN": 0, 
+    "TE": 0, 
+    "TFP": 0 
+  }
+]
+
+

@@ -1,0 +1,35 @@
+
+.todo {
+  background-color: #333;
+  /* height: 100vh; */
+  color: whitesmoke;
+  font-family: 'Roboto', sans-serif;
+}
+
+.encabezado {
+  background-color: #98142E;
+  color: whitesmoke;
+  padding: 0.5%; 
+  font-size: large;
+}
+.subtitulo {
+  font-size: xx-large;
+  margin-left: 5%;
+}
+.leerArchivo {
+  text-align: center;
+  margin-top: 10%;  
+  /* padding: 10%; */
+}
+.sel {
+  margin-top: 3%;
+}
+
+.botones {
+  margin-left: 8%;
+}
+
+.tablas{
+  color: white;
+}
+

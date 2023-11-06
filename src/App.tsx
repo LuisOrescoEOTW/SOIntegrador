@@ -1,7 +1,11 @@
 //DAle que va
 
-import { ChangeEvent, useEffect, useState } from "react";
-import "./App.css";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
+import "./estilos.css";
+import Grid from "@mui/material/Grid";
+import { AppBar, Box, Button, Card, Divider, FormControl, FormHelperText, IconButton, Input, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Select, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Toolbar, Typography, styled } from "@mui/material";
+import { AddAlarm, CloudUploadOutlined } from "@mui/icons-material";
+
 
 interface Proceso {
   Proceso: number;
@@ -29,140 +33,8 @@ function App() {
   const [desasignoRecursos, setDesasignoRecursos] = useState<Proceso[]>([]); //actDesasignoRecursos
   const [finalizado, setFinalizado] = useState<Proceso[]>([]); //upFinalizado
 
-  //Para hacer un commit
-  const cargarArregloOriginal = () => {
-    setNuevo([
-      {
-        Proceso: 1,
-        Arribo: 0,
-        Previsto: 10,
-        PrevistoH: 10,
-        Servicio: 20,
-        ServicioH: 20,
-        Prioridad: 1,
-        IO: 0,
-        TR: 0,
-        TRN: 0,
-        TE: 0,
-        TFP: 0,
-      },
-      {
-        Proceso: 2,
-        Arribo: 4,
-        Previsto: 20,
-        PrevistoH: 20,
-        Servicio: 30,
-        ServicioH: 30,
-        Prioridad: 2,
-        IO: 0,
-        TR: 0,
-        TRN: 0,
-        TE: 0,
-        TFP: 0,
-      },
-      {
-        Proceso: 3,
-        Arribo: 8,
-        Previsto: 5,
-        PrevistoH: 5,
-        Servicio: 15,
-        ServicioH: 15,
-        Prioridad: 4,
-        IO: 0,
-        TR: 0,
-        TRN: 0,
-        TE: 0,
-        TFP: 0,
-      },
-      {
-        Proceso: 4,
-        Arribo: 10,
-        Previsto: 15,
-        PrevistoH: 15,
-        Servicio: 30,
-        ServicioH: 30,
-        Prioridad: 3,
-        IO: 0,
-        TR: 0,
-        TRN: 0,
-        TE: 0,
-        TFP: 0,
-      },
-    ]);
-    setNumeroProcesos(4);
-  };
-
-  //Este es un arreglo corto solo para pruebas rápidas.
-  const cargarArreglo = () => {
-    setNuevo([
-      {
-        Proceso: 1,
-        Arribo: 0,
-        Previsto: 2,
-        PrevistoH: 2,
-        Servicio: 4,
-        ServicioH: 4,
-        Prioridad: 10,
-        IO: 0,
-        TR: 0,
-        TRN: 0,
-        TE: 0,
-        TFP: 0,
-      },
-      {
-        Proceso: 2,
-        Arribo: 4,
-        Previsto: 2,
-        PrevistoH: 2,
-        Servicio: 3,
-        ServicioH: 3,
-        Prioridad: 9,
-        IO: 0,
-        TR: 0,
-        TRN: 0,
-        TE: 0,
-        TFP: 0,
-      },
-      {
-        Proceso: 3,
-        Arribo: 8,
-        Previsto: 5,
-        PrevistoH: 5,
-        Servicio: 6,
-        ServicioH: 6,
-        Prioridad: 1,
-        IO: 0,
-        TR: 0,
-        TRN: 0,
-        TE: 0,
-        TFP: 0,
-      },
-      {
-        Proceso: 4,
-        Arribo: 10,
-        Previsto: 5,
-        PrevistoH: 5,
-        Servicio: 10,
-        ServicioH: 10,
-        Prioridad: 5,
-        IO: 0,
-        TR: 0,
-        TRN: 0,
-        TE: 0,
-        TFP: 0,
-      },
-    ]);
-    setNumeroProcesos(4);
-  };
-  // useEffect(() => {
-  //   setInicial(nuevo);
-  // }, [nuevo])
-
-
   useEffect(() => {
-    cargarArreglo();
-    setQuantum(1);
-    setIo(1);
+    setNumeroProcesos(5);
   }, []);
 
   //FCFS*******************************************************************************
@@ -170,7 +42,7 @@ function App() {
     const upCount = count + 1;
     const upListo = listo;
     const upFinalizado = finalizado;
-    
+
     //NUEVO y LISTO
     const upNuevo = nuevo.filter((value) => {
       if (value.Arribo + tip === upCount) {
@@ -180,7 +52,7 @@ function App() {
       return true; // Mantiene el elemento en nuevo
     });
     setNuevo(upNuevo);
-    
+
     //BLOQUEADO
     //Disminuye en 1 el IO de todos los bloqueados
     const actBloqueado = bloqueado.map((value) => {
@@ -195,7 +67,7 @@ function App() {
       }
       return true; // Mantiene el elemento en nuevo
     });
-    
+
     //DESASIGNAR RECURSOS
     const actDesasignoRecursos = desasignoRecursos.map((value) => {
       return { ...value, TFP: value.TFP - 1 };
@@ -210,7 +82,7 @@ function App() {
       }
       return true; // Mantiene el elemento en nuevo
     });
-    
+
     //PROCESAR
     let upTcpEP = tcpEP - 1 > 0 ? tcpEP - 1 : 0;
     let upProcesar = procesar;
@@ -239,9 +111,9 @@ function App() {
             upBloqueado.push({
               ...value,
               Previsto:
-              value.Servicio < value.PrevistoH
-              ? value.Servicio
-              : value.PrevistoH,
+                value.Servicio < value.PrevistoH
+                  ? value.Servicio
+                  : value.PrevistoH,
               IO: io,
             });
             upTcpEP = tcp;
@@ -715,7 +587,7 @@ function App() {
   };
 
   // Definir un "quantum" para almacenar el valor numérico
-  const [quantum, setQuantum] = useState<number>(0);
+  const [quantum, setQuantum] = useState<number>(1);
   const [quantumEC, setQuantumEC] = useState<number>(0);
   const handleQuantumChange = (event: ChangeEvent<HTMLInputElement>) => {
     const valor =
@@ -724,7 +596,7 @@ function App() {
   };
 
   // Definir un "IO" para almacenar el valor numérico
-  const [io, setIo] = useState<number>(0);
+  const [io, setIo] = useState<number>(1);
   const handleIOChange = (event: ChangeEvent<HTMLInputElement>) => {
     const valor =
       parseInt(event.target.value) === 0 ? 1 : parseInt(event.target.value);
@@ -814,217 +686,311 @@ function App() {
     }
   };
 
+  // Leo el archivo
+  const cargarArchivo = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Leer el contenido del archivo seleccionado
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const text = e.target?.result as string;
+          const parsedData = JSON.parse(text);
+          setNuevo(parsedData);
+        } catch (error) {
+          console.error('Error al analizar el archivo de texto:', error);
+        }
+      };
+      reader.readAsText(file);
+    }
+  }
+
+
+  // *********************************************************************************************************************
+
+  const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+  });
+
   return (
-    <>
-      <h1>- Sistemas Operativos -</h1>
-
-      <div>
-        <label htmlFor="ioField">I/O: </label>
-        <input
-          type="number"
-          id="ioField"
-          value={io}
-          onChange={handleIOChange}
-        />
-      </div>
-      <div>
-        <label htmlFor="quantumField">Quantum: </label>
-        <input
-          type="number"
-          id="quantumField"
-          value={quantum}
-          onChange={handleQuantumChange}
-        />
-      </div>
-      <div>
-        <label htmlFor="tipField">TIP: </label>
-        <input
-          type="number"
-          id="tipField"
-          value={tip}
-          onChange={handleTip}
-        />
-      </div>
-      <div>
-        <label htmlFor="tfpField">TFP: </label>
-        <input
-          type="number"
-          id="tfpField"
-          value={tfp}
-          onChange={handleTfp}
-        />
-      </div>
-      <div>
-        <label htmlFor="tcpField">TCP: </label>
-        <input
-          type="number"
-          id="tcpField"
-          value={tcp}
-          onChange={handleTcp}
-        />
+    <div className="todo">
+      {/* <Stack direction="row" spacing={10}>
+        <ListItem>Item 1</ListItem>
+        <ListItem>Item 2</ListItem>
+        <ListItem>
+        </ListItem>
+      </Stack> */}
+      {/* <AppBar position="static">
+        <Toolbar variant="dense">
+        <Typography variant="h6" color="inherit" component="div">
+        Sistemas Operativos
+          </Typography>
+        </Toolbar>
+      </AppBar> */}
+      <div className="encabezado">
+        Sistemas Operativos
       </div>
 
-      <div className="card">
-        <p>TIEMPO {count}</p>
+      <Grid container >
+        <Grid item md={4}>
+          <div className="subtitulo">
+            <h3>
+              Planificación del Procesador
+            </h3>
+          </div>
+        </Grid>
+        <Grid item md={4} className="leerArchivo">
+          <div className="leerArchivo">
+            <Button component="label" variant="contained" startIcon={<CloudUploadOutlined />}>
+              Seleccionar Archivo
+              <VisuallyHiddenInput type="file" accept=".txt" onChange={cargarArchivo} />
+            </Button>
+          </div>
+        </Grid>
+        <Grid item md={2} className="sel">
 
-        <div>
-          <button
-            onClick={() => habilitarBotones("FCFS")}
-            disabled={!habilitados.FCFS}
-          >
-            FCFS
-          </button>
-          <button
-            onClick={() => habilitarBotones("Prioridad")}
-            disabled={!habilitados.Prioridad}
-          >
-            Prioridad
-          </button>
-          <button
-            onClick={() => habilitarBotones("RR")}
-            disabled={!habilitados.RR}
-          >
-            RR
-          </button>
-          <button
-            onClick={() => habilitarBotones("SPN")}
-            disabled={!habilitados.SPN}
-          >
-            SPN
-          </button>
-          <button
-            onClick={() => habilitarBotones("SRTN")}
-            disabled={!habilitados.SRTN}
-          >
-            SRTN
-          </button>
-        </div>
+          <div className="sel">
+            <TextField label="I/O" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="ioField" value={io} onChange={handleIOChange} focused />
+            {/* <label htmlFor="ioField">I/O: </label> <input type="number" id="ioField" value={io} onChange={handleIOChange} /> */}
+          </div>
+          <div className="sel">
+            <TextField label="Quantum" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="quantumField" value={quantum} onChange={handleQuantumChange} focused />
+            {/* <label htmlFor="quantumField">Quantum: </label> <input type="number" id="quantumField" value={quantum} onChange={handleQuantumChange} /> */}
+          </div>
+        </Grid>
+        <Grid item md={2} className="sel">
+          <div className="sel">
+            <TextField label="TIP" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="tipField" value={tip} onChange={handleTip} focused />
+            {/* <label htmlFor="tipField">TIP: </label><input type="number" id="tipField" value={tip} onChange={handleTip}/> */}
+          </div>
+          <div className="sel">
+            <TextField label="TFP" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="tfpField" value={tfp} onChange={handleTfp} focused />
+            {/* <label htmlFor="tfpField">TFP: </label> <input type="number" id="tfpField" value={tfp}onChange={handleTfp} /> */}
+          </div>
+          <div className="sel">
+            <TextField label="TCP" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="tcpField" value={tcp} onChange={handleTcp} focused />
+            {/* <label htmlFor="tcpField">TCP: </label> <input type="number" id="tcpField" value={tcp}onChange={handleTcp}/> */}
+          </div>
+        </Grid>
+      </Grid>
 
-        <button onClick={avanzarTiempo} disabled={!habilitados.tiempo}>
-          Avanzar Tiempo
-        </button>
-      </div>
+      <Stack direction="row" spacing={10}>
+        <ListItem>
+          <div className="botones">
+            <Button variant="contained" color="success" onClick={() => habilitarBotones("FCFS")} disabled={!habilitados.FCFS}>
+              FCFS
+            </Button>
+          </div>
+          <div className="botones">
+            <Button variant="contained" color="success" onClick={() => habilitarBotones("Prioridad")} disabled={!habilitados.Prioridad}>
+              Prioridad
+            </Button>
+          </div>
+          <div className="botones">
+            <Button variant="contained" color="success" onClick={() => habilitarBotones("RR")} disabled={!habilitados.RR}>
+              RR
+            </Button>
+          </div>
+          <div className="botones">
+            <Button variant="contained" color="success" onClick={() => habilitarBotones("SPN")} disabled={!habilitados.SPN}>
+              SPN
+            </Button>
+          </div>
+          <div className="botones">
+            <Button variant="contained" color="success" onClick={() => habilitarBotones("SRTN")} disabled={!habilitados.SRTN}>
+              SRTN
+            </Button>
+          </div>
+        </ListItem>
+        <ListItem>
+          <div>
+            <Button component="label" variant="contained" startIcon={<AddAlarm />} onClick={avanzarTiempo} disabled={!habilitados.tiempo} size="large" color="warning">
+              {count}
+            </Button>
+            {/* <p>TIEMPO {count}</p> */}
+            {/* <button onClick={avanzarTiempo} disabled={!habilitados.tiempo}>Avanzar Tiempo</button> */}
+          </div>
+        </ListItem>
+      </Stack>
 
-      {nuevo && (
-        <div>
-          <h2>Nuevo: TIP={tip} </h2>
-          <ul>
-            {nuevo.map((item, index) => (
-              <li key={index}>
-                Proceso {item.Proceso} Arribo {item.Arribo} 
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <Stack direction="row" spacing={5}>
+        <ListItem>
+          {
+            nuevo && (
+              <><TableContainer >
+                <Table size="small">
+                  <TableHead >Nuevo: TIP={tip}
+                    <TableRow className="tablas">
+                      <TableCell align="center">Proceso</TableCell>
+                      <TableCell align="center">Arribo</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {nuevo.map((row) => (
+                      <TableRow
+                      // key={nuevo.Proceso}
+                      // sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                      >
+                        <TableCell>
+                          {row.Proceso}
+                        </TableCell>
+                        <TableCell align="left">{row.Arribo}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer><div>Nuevo: TIP={tip}
+                  {/* <h2>Nuevo: TIP={tip} </h2> */}
+                  <ul>
+                    {nuevo.map((item, index) => (
+                      <li key={index}>
+                        Proceso {item.Proceso} Arribo {item.Arribo}
+                      </li>
+                    ))}
+                  </ul>
+                </div></>
+            )
+          }
+        </ListItem>
 
-      {listo && (
-        <div>
-          <h2>Listo:</h2>
-          <ul>
-            {listo.map((item, index) => (
-              <li key={index}>
-                Proceso {item.Proceso} Prioridad {item.Prioridad} Previsto {item.Previsto} Servicio {item.Servicio}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        <ListItem>
+          {
+            listo && (
+              <div> Listo:
+                {/* <h2>Listo:</h2> */}
+                <ul>
+                  {listo.map((item, index) => (
+                    <li key={index}>
+                      Proceso {item.Proceso} Prioridad {item.Prioridad} Previsto {item.Previsto} Servicio {item.Servicio}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+        </ListItem>
 
-      {bloqueado && (
-        <div>
-          <h2>Bloqueado:</h2>
-          <ul>
-            {bloqueado.map((item, index) => (
-              <li key={index}>
-                Proceso {item.Proceso} IO {item.IO}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        <ListItem>
+          {
+            bloqueado && (
+              <div>Bloqueado:
+                {/* <h2>Bloqueado:</h2> */}
+                <ul>
+                  {bloqueado.map((item, index) => (
+                    <li key={index}>
+                      Proceso {item.Proceso} IO {item.IO}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+        </ListItem>
 
-      {procesar && (
-        <div>
-          <h2>PROCESANDO: Q={quantumEC} TCP={tcpEP}</h2>
-          <ul>
-            {procesar.map((item, index) => (
-              <li key={index}>
-                Proceso {item.Proceso} Prioridad {item.Prioridad} Previsto {item.Previsto} Servicio {item.Servicio}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        <ListItem>
+          {
+            procesar && (
+              <div>
+                <h2>PROCESANDO: Q={quantumEC} TCP={tcpEP}</h2>
+                <ul>
+                  {procesar.map((item, index) => (
+                    <li key={index}>
+                      Proceso {item.Proceso} Prioridad {item.Prioridad} Previsto {item.Previsto} Servicio {item.Servicio}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+        </ListItem>
+      </Stack>
 
-      {desasignoRecursos && (
-        <div>
-          <h2>Desasignando Recursos: TFP={tfp}</h2>
-          <ul>
-            {desasignoRecursos.map((item, index) => (
-              <li key={index}>
-                Proceso {item.Proceso} TFP {item.TFP}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <ListItem>
+        {
+          desasignoRecursos && (
+            <div>
+              <h2>Desasignando Recursos: TFP={tfp}</h2>
+              <ul>
+                {desasignoRecursos.map((item, index) => (
+                  <li key={index}>
+                    Proceso {item.Proceso} TFP {item.TFP}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+      </ListItem>
 
-      {finalizado && (
-        <div>
-          <h2>Finalizado:</h2>
-          <ul>
-            {finalizado.map((item, index) => (
-              <li key={index}>
-                Proceso {item.Proceso} Previsto {item.Previsto} PrevistoAlIniciar {item.PrevistoH} Arribo {item.Arribo} Servicio {item.Servicio} ServicioAlIniciar {item.ServicioH} Prioridad {item.Prioridad}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <ListItem>
+        {
+          finalizado && (
+            <div>
+              <h2>Finalizado:</h2>
+              <ul>
+                {finalizado.map((item, index) => (
+                  <li key={index}>
+                    Proceso {item.Proceso} Previsto {item.Previsto} PrevistoAlIniciar {item.PrevistoH} Arribo {item.Arribo} Servicio {item.Servicio} ServicioAlIniciar {item.ServicioH} Prioridad {item.Prioridad}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+      </ListItem>
 
-      {verCalculos && (
-        <div>
-          <h2>CALCULOS</h2>
-          <h3>Tiempo de Retorno de Cada Trabajo</h3>
-          <ul>
-            {finalizado.map((item, index) => (
-              <li key={index}>
-                Proceso {item.Proceso} TR {item.TR}
-              </li>
-            ))}
-          </ul>
-          <h3>Tiempo de Retorno Normalizado de Cada Trabajo</h3>
-          <ul>
-            {finalizado.map((item, index) => (
-              <li key={index}>
-                Proceso {item.Proceso} TRN {item.TRN.toFixed(2)}
-              </li>
-            ))}
-          </ul>
-          <h3>Tiempo de Retorno de la Tanda</h3>
-          <ul>
-            <li>{count}</li>
-          </ul>
-          <h3>Tiempo Medio de Retorno de la Tanda</h3>
-          <ul>
-            <li>{TMRT}</li>
-          </ul>
-          <h3>Tiempo de Espera de Cada Trabajo</h3>
-          <ul>
-            {finalizado.map((item, index) => (
-              <li key={index}>
-                Proceso {item.Proceso} TE {item.TE}
-              </li>
-            ))}
-          </ul>
-          <h3>Tiempo Medio de Espera de la Tanda</h3>
-          <ul>
-            <li>{TME}</li>
-          </ul>
-        </div>
-      )}
-    </>
+      {
+        verCalculos && (
+          <div>
+            <h2>CALCULOS</h2>
+            <h3>Tiempo de Retorno de Cada Trabajo</h3>
+            <ul>
+              {finalizado.map((item, index) => (
+                <li key={index}>
+                  Proceso {item.Proceso} TR {item.TR}
+                </li>
+              ))}
+            </ul>
+            <h3>Tiempo de Retorno Normalizado de Cada Trabajo</h3>
+            <ul>
+              {finalizado.map((item, index) => (
+                <li key={index}>
+                  Proceso {item.Proceso} TRN {item.TRN.toFixed(2)}
+                </li>
+              ))}
+            </ul>
+            <h3>Tiempo de Retorno de la Tanda</h3>
+            <ul>
+              <li>{count}</li>
+            </ul>
+            <h3>Tiempo Medio de Retorno de la Tanda</h3>
+            <ul>
+              <li>{TMRT}</li>
+            </ul>
+            <h3>Tiempo de Espera de Cada Trabajo</h3>
+            <ul>
+              {finalizado.map((item, index) => (
+                <li key={index}>
+                  Proceso {item.Proceso} TE {item.TE}
+                </li>
+              ))}
+            </ul>
+            <h3>Tiempo Medio de Espera de la Tanda</h3>
+            <ul>
+              <li>{TME}</li>
+            </ul>
+          </div>
+        )
+      }
+    </div >
   );
 }
 
