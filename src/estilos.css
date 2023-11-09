@@ -11,6 +11,7 @@
   color: whitesmoke;
   padding: 0.5%; 
   font-size: large;
+  font-family: 'Roboto', sans-serif;
 }
 .subtitulo {
   font-size: xx-large;
@@ -29,7 +30,28 @@
   margin-left: 8%;
 }
 
-.tablas{
-  color: white;
+.tabla-container {
+  align-items: center;
+  text-align: center;
+}
+.pie {
+  background-color: grey;
+  color: whitesmoke;
+  padding: 0.5%; 
+  font-size: smaller;
+  align-items: center;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
 }
 
+/* .tabla-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border-collapse: collapse;
+  background-color: #333; 
+  color: white; 
+  text-align: center;
+  border-bottom: 1px solid white;  */
+/* } */

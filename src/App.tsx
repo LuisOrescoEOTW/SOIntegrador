@@ -3,8 +3,10 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import "./estilos.css";
 import Grid from "@mui/material/Grid";
-import { AppBar, Box, Button, Card, Divider, FormControl, FormHelperText, IconButton, Input, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Select, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Toolbar, Typography, styled } from "@mui/material";
-import { AddAlarm, CloudUploadOutlined } from "@mui/icons-material";
+import { AppBar, Box, Button, Card, Divider, FormControl, FormHelperText, IconButton, Input, InputLabel, LinearProgress, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Select, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Toolbar, Typography, styled } from "@mui/material";
+import { AddAlarm, CenterFocusStrong, CloudUploadOutlined } from "@mui/icons-material";
+import { blue } from "@mui/material/colors";
+// import { Table } from 'flowbite-react';
 
 
 interface Proceso {
@@ -721,277 +723,408 @@ function App() {
   });
 
   return (
-    <div className="todo">
-      {/* <Stack direction="row" spacing={10}>
-        <ListItem>Item 1</ListItem>
-        <ListItem>Item 2</ListItem>
-        <ListItem>
-        </ListItem>
-      </Stack> */}
-      {/* <AppBar position="static">
-        <Toolbar variant="dense">
-        <Typography variant="h6" color="inherit" component="div">
-        Sistemas Operativos
-          </Typography>
-        </Toolbar>
-      </AppBar> */}
+    <div>
       <div className="encabezado">
         Sistemas Operativos
       </div>
+      <div className="todo">
 
-      <Grid container >
-        <Grid item md={4}>
-          <div className="subtitulo">
-            <h3>
-              Planificación del Procesador
-            </h3>
-          </div>
+        <Grid container >
+          <Grid item md={4}>
+            <div className="subtitulo">
+              <h3>
+                Planificación del Procesador
+              </h3>
+            </div>
+          </Grid>
+          <Grid item md={4} className="leerArchivo">
+            <div className="leerArchivo">
+              <Button component="label" variant="contained" startIcon={<CloudUploadOutlined />}>
+                Seleccionar Archivo
+                <VisuallyHiddenInput type="file" accept=".txt" onChange={cargarArchivo} />
+              </Button>
+            </div>
+          </Grid>
+          <Grid item md={2} className="sel" >
+            <div className="sel">
+              <TextField label="I/O" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="ioField" value={io} onChange={handleIOChange} focused />
+              {/* <label htmlFor="ioField">I/O: </label> <input type="number" id="ioField" value={io} onChange={handleIOChange} /> */}
+            </div>
+            <div className="sel">
+              <TextField label="Quantum" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="quantumField" value={quantum} onChange={handleQuantumChange} focused />
+              {/* <label htmlFor="quantumField">Quantum: </label> <input type="number" id="quantumField" value={quantum} onChange={handleQuantumChange} /> */}
+            </div>
+          </Grid>
+          <Grid item md={2} className="sel">
+            <div className="sel">
+              <TextField label="TIP" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="tipField" value={tip} onChange={handleTip} focused />
+              {/* <label htmlFor="tipField">TIP: </label><input type="number" id="tipField" value={tip} onChange={handleTip}/> */}
+            </div>
+            <div className="sel">
+              <TextField label="TFP" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="tfpField" value={tfp} onChange={handleTfp} focused />
+              {/* <label htmlFor="tfpField">TFP: </label> <input type="number" id="tfpField" value={tfp}onChange={handleTfp} /> */}
+            </div>
+            <div className="sel">
+              <TextField label="TCP" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="tcpField" value={tcp} onChange={handleTcp} focused />
+              {/* <label htmlFor="tcpField">TCP: </label> <input type="number" id="tcpField" value={tcp}onChange={handleTcp}/> */}
+            </div>
+          </Grid>
         </Grid>
-        <Grid item md={4} className="leerArchivo">
-          <div className="leerArchivo">
-            <Button component="label" variant="contained" startIcon={<CloudUploadOutlined />}>
-              Seleccionar Archivo
-              <VisuallyHiddenInput type="file" accept=".txt" onChange={cargarArchivo} />
-            </Button>
-          </div>
-        </Grid>
-        <Grid item md={2} className="sel">
 
-          <div className="sel">
-            <TextField label="I/O" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="ioField" value={io} onChange={handleIOChange} focused />
-            {/* <label htmlFor="ioField">I/O: </label> <input type="number" id="ioField" value={io} onChange={handleIOChange} /> */}
-          </div>
-          <div className="sel">
-            <TextField label="Quantum" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="quantumField" value={quantum} onChange={handleQuantumChange} focused />
-            {/* <label htmlFor="quantumField">Quantum: </label> <input type="number" id="quantumField" value={quantum} onChange={handleQuantumChange} /> */}
-          </div>
-        </Grid>
-        <Grid item md={2} className="sel">
-          <div className="sel">
-            <TextField label="TIP" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="tipField" value={tip} onChange={handleTip} focused />
-            {/* <label htmlFor="tipField">TIP: </label><input type="number" id="tipField" value={tip} onChange={handleTip}/> */}
-          </div>
-          <div className="sel">
-            <TextField label="TFP" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="tfpField" value={tfp} onChange={handleTfp} focused />
-            {/* <label htmlFor="tfpField">TFP: </label> <input type="number" id="tfpField" value={tfp}onChange={handleTfp} /> */}
-          </div>
-          <div className="sel">
-            <TextField label="TCP" color="info" InputProps={{ style: { color: 'white' } }} type="number" id="tcpField" value={tcp} onChange={handleTcp} focused />
-            {/* <label htmlFor="tcpField">TCP: </label> <input type="number" id="tcpField" value={tcp}onChange={handleTcp}/> */}
-          </div>
-        </Grid>
-      </Grid>
+        <Stack direction="row" spacing={10}>
+          <ListItem>
+            <div className="botones">
+              <Button variant="contained" color="success" onClick={() => habilitarBotones("FCFS")} disabled={!habilitados.FCFS}>
+                FCFS
+              </Button>
+            </div>
+            <div className="botones">
+              <Button variant="contained" color="success" onClick={() => habilitarBotones("Prioridad")} disabled={!habilitados.Prioridad}>
+                Prioridad
+              </Button>
+            </div>
+            <div className="botones">
+              <Button variant="contained" color="success" onClick={() => habilitarBotones("RR")} disabled={!habilitados.RR}>
+                RR
+              </Button>
+            </div>
+            <div className="botones">
+              <Button variant="contained" color="success" onClick={() => habilitarBotones("SPN")} disabled={!habilitados.SPN}>
+                SPN
+              </Button>
+            </div>
+            <div className="botones">
+              <Button variant="contained" color="success" onClick={() => habilitarBotones("SRTN")} disabled={!habilitados.SRTN}>
+                SRTN
+              </Button>
+            </div>
+          </ListItem>
+          <ListItem>
+            <div>
+              <Button component="label" variant="contained" startIcon={<AddAlarm />} onClick={avanzarTiempo} disabled={!habilitados.tiempo} size="large" color="warning">
+                {count}
+              </Button>
+              {/* <p>TIEMPO {count}</p> */}
+              {/* <button onClick={avanzarTiempo} disabled={!habilitados.tiempo}>Avanzar Tiempo</button> */}
+            </div>
+          </ListItem>
+        </Stack>
 
-      <Stack direction="row" spacing={10}>
-        <ListItem>
-          <div className="botones">
-            <Button variant="contained" color="success" onClick={() => habilitarBotones("FCFS")} disabled={!habilitados.FCFS}>
-              FCFS
-            </Button>
-          </div>
-          <div className="botones">
-            <Button variant="contained" color="success" onClick={() => habilitarBotones("Prioridad")} disabled={!habilitados.Prioridad}>
-              Prioridad
-            </Button>
-          </div>
-          <div className="botones">
-            <Button variant="contained" color="success" onClick={() => habilitarBotones("RR")} disabled={!habilitados.RR}>
-              RR
-            </Button>
-          </div>
-          <div className="botones">
-            <Button variant="contained" color="success" onClick={() => habilitarBotones("SPN")} disabled={!habilitados.SPN}>
-              SPN
-            </Button>
-          </div>
-          <div className="botones">
-            <Button variant="contained" color="success" onClick={() => habilitarBotones("SRTN")} disabled={!habilitados.SRTN}>
-              SRTN
-            </Button>
-          </div>
-        </ListItem>
-        <ListItem>
-          <div>
-            <Button component="label" variant="contained" startIcon={<AddAlarm />} onClick={avanzarTiempo} disabled={!habilitados.tiempo} size="large" color="warning">
-              {count}
-            </Button>
-            {/* <p>TIEMPO {count}</p> */}
-            {/* <button onClick={avanzarTiempo} disabled={!habilitados.tiempo}>Avanzar Tiempo</button> */}
-          </div>
-        </ListItem>
-      </Stack>
-
-      <Stack direction="row" spacing={5}>
-        <ListItem>
-          {
-            nuevo && (
-              <><TableContainer >
-                <Table size="small">
-                  <TableHead >Nuevo: TIP={tip}
-                    <TableRow className="tablas">
-                      <TableCell align="center">Proceso</TableCell>
-                      <TableCell align="center">Arribo</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {nuevo.map((row) => (
-                      <TableRow
-                      // key={nuevo.Proceso}
-                      // sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                      >
-                        <TableCell>
-                          {row.Proceso}
-                        </TableCell>
-                        <TableCell align="left">{row.Arribo}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer><div>Nuevo: TIP={tip}
-                  {/* <h2>Nuevo: TIP={tip} </h2> */}
-                  <ul>
-                    {nuevo.map((item, index) => (
-                      <li key={index}>
-                        Proceso {item.Proceso} Arribo {item.Arribo}
-                      </li>
-                    ))}
-                  </ul>
-                </div></>
-            )
-          }
-        </ListItem>
-
-        <ListItem>
-          {
-            listo && (
-              <div> Listo:
-                {/* <h2>Listo:</h2> */}
-                <ul>
-                  {listo.map((item, index) => (
-                    <li key={index}>
-                      Proceso {item.Proceso} Prioridad {item.Prioridad} Previsto {item.Previsto} Servicio {item.Servicio}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )
-          }
-        </ListItem>
-
-        <ListItem>
-          {
-            bloqueado && (
-              <div>Bloqueado:
-                {/* <h2>Bloqueado:</h2> */}
-                <ul>
-                  {bloqueado.map((item, index) => (
-                    <li key={index}>
-                      Proceso {item.Proceso} IO {item.IO}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )
-          }
-        </ListItem>
-
-        <ListItem>
-          {
-            procesar && (
+        <Grid container>
+          <Grid item p={1} m={2} alignItems="center">
+            {nuevo && (
               <div>
-                <h2>PROCESANDO: Q={quantumEC} TCP={tcpEP}</h2>
+                <Card sx={{ alignContent: "center", textAlign: "center", alignItems: "center", border: 2, borderBottom: 6, borderRight: 6, color: "white", backgroundColor: "transparent", borderColor: "#0567b7" }}>
+                  <Card sx={{ color: "white", backgroundColor: "#0567b7", margin: "3px", padding: "10px" }}>
+                    Nuevo: TIP={tip}
+                  </Card>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Proceso |</th>
+                        <th>Arribo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {nuevo.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.Proceso}</td>
+                          <td>{item.Arribo}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              </div>
+            )}
+          </Grid>
+          <Grid item p={1} m={2} alignItems="center">
+            {listo && (
+              <div>
+                <Card sx={{ alignContent: "center", textAlign: "center", alignItems: "center", border: 2, borderBottom: 6, borderRight: 6, color: "white", backgroundColor: "transparent", borderColor: "#0567b7" }}>
+                  <Card sx={{ color: "white", backgroundColor: "#0567b7", margin: "3px", padding: "10px" }}>
+                    Listo:
+                  </Card>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Proceso |</th>
+                        <th>Prioridad |</th>
+                        <th>Previsto |</th>
+                        <th>Servicio</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {listo.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.Proceso}</td>
+                          <td>{item.Prioridad}</td>
+                          <td>{item.Previsto}</td>
+                          <td>{item.Servicio}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              </div>
+            )
+            }
+          </Grid>
+          <Grid item p={1} m={2} alignItems="center">
+            {bloqueado && (
+              <div>
+                <Card sx={{ alignContent: "center", textAlign: "center", alignItems: "center", border: 2, borderBottom: 6, borderRight: 6, color: "white", backgroundColor: "transparent", borderColor: "#0567b7" }}>
+                  <Card sx={{ color: "white", backgroundColor: "#0567b7", margin: "3px", padding: "10px" }}>
+                    Bloqueado:
+                  </Card>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Proceso |</th>
+                        <th>IO</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bloqueado.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.Proceso}</td>
+                          <td>{item.IO}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              </div>
+            )
+            }
+          </Grid>
+          <Grid item p={1} m={2} alignItems="center">
+            {procesar && (
+              <div>
+                <Card sx={{ alignContent: "center", textAlign: "center", alignItems: "center", border: 2, borderBottom: 6, borderRight: 6, color: "white", backgroundColor: "transparent", borderColor: "#0567b7" }}>
+                  <Card sx={{ color: "white", backgroundColor: "#0567b7", margin: "3px", padding: "10px" }}>
+                    Procesando: Q={quantumEC} TCP={tcpEP}
+                  </Card>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Proceso |</th>
+                        <th>Prioridad |</th>
+                        <th>Previsto |</th>
+                        <th>Servicio</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {procesar.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.Proceso}</td>
+                          <td>{item.Prioridad}</td>
+                          <td>{item.Previsto}</td>
+                          <td>{item.Servicio}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              </div>
+            )
+            }
+          </Grid>
+          <Grid item p={1} m={2} alignItems="center">
+            {desasignoRecursos && (
+              <div>
+                <Card sx={{ alignContent: "center", textAlign: "center", alignItems: "center", border: 2, borderBottom: 6, borderRight: 6, color: "white", backgroundColor: "transparent", borderColor: "#0567b7" }}>
+                  <Card sx={{ color: "white", backgroundColor: "#0567b7", margin: "3px", padding: "10px" }}>
+                    Desasigno Recursos: TFP={tfp}
+                  </Card>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Proceso |</th>
+                        <th>TFP</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {desasignoRecursos.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.Proceso}</td>
+                          <td>{item.TFP}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              </div>
+            )
+            }
+          </Grid>
+        </Grid>
+        <Grid container>
+          <Grid item p={1} m={2} alignItems="center">
+            {finalizado && (
+              <div>
+                <Card sx={{ alignContent: "center", textAlign: "center", alignItems: "center", border: 2, borderBottom: 6, borderRight: 6, color: "white", backgroundColor: "transparent", borderColor: "#0567b7" }}>
+                  <Card sx={{ color: "white", backgroundColor: "#0567b7", margin: "3px", padding: "10px" }}>
+                    Finalizado:
+                  </Card>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Proceso |</th>
+                        <th>Previsto |</th>
+                        <th>Previsto al Iniciar |</th>
+                        <th>Arribo |</th>
+                        <th>Servicio |</th>
+                        <th>Servicio al Iniciar |</th>
+                        <th>Prioridad</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {finalizado.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.Proceso}</td>
+                          <td>{item.Previsto}</td>
+                          <td>{item.PrevistoH}</td>
+                          <td>{item.Arribo}</td>
+                          <td>{item.Servicio}</td>
+                          <td>{item.ServicioH}</td>
+                          <td>{item.Prioridad}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              </div>
+            )
+            }
+          </Grid>
+        </Grid>
+
+        {verCalculos && (
+          <div>
+            <p></p>
+            <Box sx={{ width: '100%' }}>
+              <LinearProgress color="inherit" />
+            </Box>
+            <AppBar position="static" color="secondary">
+              <Toolbar variant="dense">
+                <Typography variant="h4" component="div">
+                  Resultados
+                </Typography>
+              </Toolbar>
+            </AppBar>
+            <Box sx={{ width: '100%' }}>
+              <LinearProgress color="inherit" />
+            </Box>
+            <Grid container >
+              <Grid item md={5.5} margin="0.5%">
+                <h3>Tiempo de Retorno de Cada Trabajo</h3>
                 <ul>
-                  {procesar.map((item, index) => (
+                  {finalizado.map((item, index) => (
                     <li key={index}>
-                      Proceso {item.Proceso} Prioridad {item.Prioridad} Previsto {item.Previsto} Servicio {item.Servicio}
+                      Proceso {item.Proceso}: {item.TR}
                     </li>
                   ))}
                 </ul>
-              </div>
-            )
-          }
-        </ListItem>
-      </Stack>
 
-      <ListItem>
-        {
-          desasignoRecursos && (
-            <div>
-              <h2>Desasignando Recursos: TFP={tfp}</h2>
-              <ul>
-                {desasignoRecursos.map((item, index) => (
-                  <li key={index}>
-                    Proceso {item.Proceso} TFP {item.TFP}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )
-        }
-      </ListItem>
-
-      <ListItem>
-        {
-          finalizado && (
-            <div>
-              <h2>Finalizado:</h2>
-              <ul>
-                {finalizado.map((item, index) => (
-                  <li key={index}>
-                    Proceso {item.Proceso} Previsto {item.Previsto} PrevistoAlIniciar {item.PrevistoH} Arribo {item.Arribo} Servicio {item.Servicio} ServicioAlIniciar {item.ServicioH} Prioridad {item.Prioridad}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )
-        }
-      </ListItem>
-
-      {
-        verCalculos && (
-          <div>
-            <h2>CALCULOS</h2>
-            <h3>Tiempo de Retorno de Cada Trabajo</h3>
-            <ul>
-              {finalizado.map((item, index) => (
-                <li key={index}>
-                  Proceso {item.Proceso} TR {item.TR}
-                </li>
-              ))}
-            </ul>
-            <h3>Tiempo de Retorno Normalizado de Cada Trabajo</h3>
-            <ul>
-              {finalizado.map((item, index) => (
-                <li key={index}>
-                  Proceso {item.Proceso} TRN {item.TRN.toFixed(2)}
-                </li>
-              ))}
-            </ul>
-            <h3>Tiempo de Retorno de la Tanda</h3>
-            <ul>
-              <li>{count}</li>
-            </ul>
-            <h3>Tiempo Medio de Retorno de la Tanda</h3>
-            <ul>
-              <li>{TMRT}</li>
-            </ul>
-            <h3>Tiempo de Espera de Cada Trabajo</h3>
-            <ul>
-              {finalizado.map((item, index) => (
-                <li key={index}>
-                  Proceso {item.Proceso} TE {item.TE}
-                </li>
-              ))}
-            </ul>
-            <h3>Tiempo Medio de Espera de la Tanda</h3>
-            <ul>
-              <li>{TME}</li>
-            </ul>
+                
+                <h3>Tiempo de Retorno Normalizado de Cada Trabajo</h3>
+                <ul>
+                  {finalizado.map((item, index) => (
+                    <li key={index}>
+                      Proceso {item.Proceso}: {item.TRN.toFixed(2)}
+                    </li>
+                  ))}
+                </ul>
+                <h3>Tiempo de Retorno de la Tanda</h3>
+                <ul>
+                  <li>{count}</li>
+                </ul>
+              </Grid>
+              <Grid item md={5.5} margin="0.5%">
+                <h3>Tiempo Medio de Retorno de la Tanda</h3>
+                <ul>
+                  <li>{TMRT}</li>
+                </ul>
+                <h3>Tiempo de Espera de Cada Trabajo</h3>
+                <ul>
+                  {finalizado.map((item, index) => (
+                    <li key={index}>
+                      Proceso {item.Proceso}: {item.TE}
+                    </li>
+                  ))}
+                </ul>
+                <h3>Tiempo Medio de Espera de la Tanda</h3>
+                <ul>
+                  <li>{TME}</li>
+                </ul>
+              </Grid>
+            </Grid>
           </div>
         )
-      }
+        }
+      </div>
+      <div className="pie">
+        ® UNTDF - Luis Orescovich - lhorescovich@gmail.com
+      </div>
     </div >
   );
 }
 
 export default App;
+
+
+{/* <div>Nuevo: TIP={tip} */ }
+{/* <h2>Nuevo: TIP={tip} </h2> */ }
+{/* <ul> */ }
+{/* {nuevo.map((item, index) => ( */ }
+{/* <li key={index}> */ }
+{/* Proceso {item.Proceso} Arribo {item.Arribo} */ }
+{/* </li> */ }
+{/* ))} */ }
+{/* </ul> */ }
+{/* </div> */ }
+
+
+{/* <div> Listo:
+                  <ul>
+                    {listo.map((item, index) => (
+                      <li key={index}>
+                        Proceso {item.Proceso} Prioridad {item.Prioridad} Previsto {item.Previsto} Servicio {item.Servicio}
+                      </li>
+                    ))}
+                  </ul>
+                </div> */}
+// <div>
+//   <h2>PROCESANDO: Q={quantumEC} TCP={tcpEP}</h2>
+//   <ul>
+//     {procesar.map((item, index) => (
+//       <li key={index}>
+//         Proceso {item.Proceso} Prioridad {item.Prioridad} Previsto {item.Previsto} Servicio {item.Servicio}
+//       </li>
+//     ))}
+//   </ul>
+// </div>
+
+
+// <div>
+//   <h2>Desasignando Recursos: TFP={tfp}</h2>
+//   <ul>
+//     {desasignoRecursos.map((item, index) => (
+//       <li key={index}>
+//         Proceso {item.Proceso} TFP {item.TFP}
+//       </li>
+//     ))}
+//   </ul>
+// </div>
+
+// <div>
+//   <h2>Finalizado:</h2>
+//   <ul>
+//     {finalizado.map((item, index) => (
+//       <li key={index}>
+//         Proceso {item.Proceso} Previsto {item.Previsto} PrevistoAlIniciar {item.PrevistoH} Arribo {item.Arribo} Servicio {item.Servicio} ServicioAlIniciar {item.ServicioH} Prioridad {item.Prioridad}
+//       </li>
+//     ))}
+//   </ul>
+// </div>
