@@ -169,8 +169,8 @@ function App() {
       return true; // Mantiene el elemento en nuevo
     });
 
-    //Ordeno upListo de menor a mayor por Prioridad
-    upListo.sort((a, b) => a.Prioridad - b.Prioridad);
+    //Ordeno upListo de mayor a menor por Prioridad
+    upListo.sort((a, b) => b.Prioridad - a.Prioridad);
 
     //DESASIGNAR RECURSOS
     const actDesasignoRecursos = desasignoRecursos.map((value) => {
@@ -229,6 +229,8 @@ function App() {
                     ? value.Servicio
                     : value.PrevistoH
               });
+              //Ordeno upListo de mayor a menor por Prioridad
+              upListo.sort((a, b) => b.Prioridad - a.Prioridad);
             }
             upTcpEP = tcp;
             return false; // Elimina el elemento de nuevo
@@ -561,6 +563,8 @@ function App() {
                     ? value.Servicio
                     : value.PrevistoH,
               });
+              //Ordeno upListo de menor a mayor por Servicio
+              upListo.sort((a, b) => a.Previsto - b.Previsto);
             }
             upTcpEP = tcp;
             return false; // Elimina el elemento de nuevo
@@ -1023,7 +1027,7 @@ function App() {
                   ))}
                 </ul>
 
-                
+
                 <h3>Tiempo de Retorno Normalizado de Cada Trabajo</h3>
                 <ul>
                   {finalizado.map((item, index) => (
