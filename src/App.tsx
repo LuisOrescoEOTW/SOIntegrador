@@ -1,13 +1,10 @@
 //DAle que va
 
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import "./estilos.css";
 import Grid from "@mui/material/Grid";
-import { AppBar, Box, Button, Card, Divider, FormControl, FormHelperText, IconButton, Input, InputLabel, LinearProgress, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Select, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Toolbar, Typography, styled } from "@mui/material";
-import { AddAlarm, CenterFocusStrong, CloudUploadOutlined } from "@mui/icons-material";
-import { blue } from "@mui/material/colors";
-// import { Table } from 'flowbite-react';
-
+import { AppBar, Box, Button, Card, LinearProgress, ListItem, Stack, TextField, Toolbar, Typography, styled } from "@mui/material";
+import { AddAlarm, CloudUploadOutlined } from "@mui/icons-material";
 
 interface Proceso {
   Proceso: number;
@@ -27,7 +24,6 @@ interface Proceso {
 function App() {
   const [count, setCount] = useState(-1);
   const [numeroProcesos, setNumeroProcesos] = useState(-1);
-  // const [inicial, setInicial] = useState<Proceso[]>([]); //upInicial
   const [nuevo, setNuevo] = useState<Proceso[]>([]); //upNuevo
   const [listo, setListo] = useState<Proceso[]>([]); //upListo
   const [bloqueado, setBloqueado] = useState<Proceso[]>([]); //actBloqueado
